@@ -1,31 +1,21 @@
-# Habit Quest — Gamified Habit Tracker
+# Habit Quest for Windows
 
-Habit Quest is a dark, neon RPG-style daily habit tracker with local accounts and a global leaderboard.
+Habit Quest is a local-only desktop habit tracker. It does not require Node.js, a server, an internet connection, or an account.
 
-## Features
+## Download and run
 
-- Username, password, gender, and birthdate signup with strict 13+ validation.
-- Required warning: account recovery is not possible; forgotten passwords cannot be retrieved.
-- Fixed daily targets: Working Out, School/Studying/Job, Brushing Teeth, Hydration, and Showering.
-- Custom daily targets, +10 EXP per completed target, level-up every 100 EXP.
-- Daily completion state resets automatically when the date changes.
-- Public leaderboard sorted by level, then total EXP, with the current player highlighted.
-- Responsive cyberpunk UI, progress bar, level-up feedback, and neon palette.
+Download **Habit Quest 1.0.0.exe** from the repository and double-click it. Windows may show a SmartScreen warning because the executable is not digitally signed.
 
-## Stack
+The app stores your local account and habit progress on this computer. The global ranking feature has been removed.
 
-Node.js + Express backend, vanilla HTML/CSS/JavaScript frontend, JSON persistence, and Node `crypto.scrypt` password hashing.
+## Included
 
-## Run locally
+- Local signup and login
+- Age validation (13+)
+- Working Out, School/Studying/Job, Brushing Teeth, Hydration, and Showering targets
+- Custom targets
+- Daily reset
+- EXP and level progression
+- Dark neon RPG interface
 
-Requires Node.js 18+.
-
-```bash
-npm install
-npm start
-```
-
-Open http://localhost:3000. The server creates `data.json` on first use; it is ignored by Git because it contains local account data.
-
-Use `npm run dev` for Node's watch mode. This is a self-hosted educational app. A production deployment should add HTTPS, sessions or signed tokens, rate limiting, CSRF protection, and a real database.
-
+No Node.js or other runtime installation is required.
