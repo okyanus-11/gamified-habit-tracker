@@ -29,7 +29,14 @@ app.post("/api/signup", (req, res) => {
   const credentials = hashPassword(password); const user = { id: crypto.randomUUID(), username: username.trim(), gender, birthdate, level: 1, exp: 0, totalExp: 0, habits: FIXED_HABITS.map((habit) => ({ ...habit, doneOn: null })), lastReset: today(), passwordHash: credentials.hash, passwordSalt: credentials.salt };
   data.users.push(user); writeData(data); res.status(201).json({ user: safeUser(user) });
 });
-app.post("/api/login", (req, res) => { const { username, password } = req.body; const user = readData().users.find((item) => item.username.toLowerCase() === String(username || "").toLowerCase()); if (!user || !crypto.timingSafeEqual(Buffer.from(hashPassword(password, user.passwordSalt).hash, "hex"), Buffer.from(user.passwordHash, "hex"))) return res.status(401).json({ error: "Invalid username or password." }); res.json({ user: safeUser(user) }); });
+app.post("/api/login", (req, res) => {
+  const data = readData();
+  const { username, password } = req.body;
+  const user = data.users.find((item) => item.username.toLowerCase() === String(username || "").toLowerCase());
+  if (!user || !crypto.timingSafeEqual(Buffer.from(hashPassword(password, user.passwordSalt).hash, "hex"), Buffer.from(user.passwordHash, "hex"))) return res.status(401).json({ error: "Invalid username or password." });
+  if (user.lastReset !== today()) { user.habits.forEach((habit) => { habit.doneOn = null; }); user.lastReset = today(); writeData(data); }
+  res.json({ user: safeUser(user) });
+});
 app.get("/api/leaderboard", (_req, res) => { const users = readData().users.map(safeUser).sort((a, b) => b.level - a.level || b.totalExp - a.totalExp).map((user, index) => ({ rank: index + 1, username: user.username, level: user.level, totalExp: user.totalExp })); res.json(users); });
 app.post("/api/habits/toggle", (req, res) => { const { userId, habitId } = req.body; const data = readData(); const user = data.users.find((item) => item.id === userId); if (!user) return res.status(404).json({ error: "User not found." }); if (user.lastReset !== today()) { user.habits.forEach((habit) => { habit.doneOn = null; }); user.lastReset = today(); } const habit = user.habits.find((item) => item.id === habitId); if (!habit) return res.status(404).json({ error: "Habit not found." }); if (!habit.doneOn) { habit.doneOn = today(); user.totalExp += 10; user.exp += 10; if (user.exp >= 100) { user.level += Math.floor(user.exp / 100); user.exp %= 100; } } writeData(data); res.json({ user: safeUser(user), gained: 10 }); });
 app.post("/api/habits", (req, res) => { const { userId, title } = req.body; const data = readData(); const user = data.users.find((item) => item.id === userId); if (!user || !title?.trim()) return res.status(400).json({ error: "A habit title is required." }); user.habits.push({ id: crypto.randomUUID(), title: title.trim(), icon: "⚡", doneOn: null }); writeData(data); res.json({ user: safeUser(user) }); });
