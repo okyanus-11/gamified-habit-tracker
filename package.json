@@ -2,7 +2,7 @@
   "name": "gamified-habit-tracker",
   "version": "1.0.0",
   "private": true,
-  "description": "A neon RPG-inspired daily habit tracker with a global leaderboard.",
+  "description": "A neon RPG-inspired daily habit tracker with custom goals and experience points.",
   "main": "desktop.js",
   "scripts": {
     "start": "node server.js",
