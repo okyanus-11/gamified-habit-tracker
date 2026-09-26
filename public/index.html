@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Habit Quest</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section id="auth" class="card auth">
+      <div class="brand">✦ HABIT QUEST</div>
+      <p class="eyebrow">LEVEL UP YOUR REAL LIFE</p>
+      <h1>Build your streak.<br><em>Own your day.</em></h1>
+      <p class="warning">⚠ Warning: Account recovery is not possible. If you forget your password, your data cannot be retrieved.</p>
+      <nav><button class="active" data-mode="login">Login</button><button data-mode="signup">Sign up</button></nav>
+      <form id="auth-form">
+        <input id="username" placeholder="Username" required>
+        <input id="password" type="password" placeholder="Password" required minlength="6">
+        <div id="signup-fields" class="hidden">
+          <select id="gender"><option value="">Gender</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select>
+          <label>Birthdate<input id="birthdate" type="date"></label>
+        </div>
+        <button class="primary" type="submit" id="auth-label">Enter the quest ↗</button>
+      </form>
+    </section>
+    <section id="dashboard" class="hidden">
+      <header><div class="brand">✦ HABIT QUEST</div><div><button id="leaderboard" class="link">◈ Global ranking</button><button id="logout" class="link">Log out</button></div></header>
+      <div class="hero"><div><p class="eyebrow">DAILY QUEST · <span id="date"></span></p><h2>Welcome back, <em id="name"></em></h2><p class="muted">Small actions. Legendary results.</p></div><div class="level">LVL<strong id="level">1</strong></div></div>
+      <div class="progress"><div><span>EXP PROGRESS</span><b><i id="exp">0</i> / 100</b></div><hr id="bar"></div>
+      <div class="grid"><section><div class="section-title"><h3>Today's targets</h3><span id="count"></span></div><div id="habits"></div><form id="custom"><input id="custom-title" placeholder="Add a custom target..." required><button>＋</button></form></section><aside class="card"><h3>Global leaderboard</h3><p class="muted">Compete with every quester.</p><div id="mini"></div></aside></div>
+    </section>
+    <section id="rank-view" class="hidden"><header><button id="back" class="link">← Dashboard</button><div class="brand">✦ GLOBAL RANKING</div></header><div class="card ranking"><p class="eyebrow">THE WORLDWIDE GUILD</p><h2>Who is leveling up?</h2><div id="ranking"></div></div></section>
+    <div id="toast"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
