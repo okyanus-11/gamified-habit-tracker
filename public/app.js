@@ -15,15 +15,28 @@ function toast(message) { const item = $("toast"); item.textContent = message; i
 function render() { const completed = user.habits.filter((habit) => habit.doneOn === today()).length; $("name").textContent = user.username; $("level").textContent = user.level; $("exp").textContent = user.exp; $("bar").style.setProperty("--value", `${user.exp}%`); $("count").textContent = `${completed} / ${user.habits.length} complete`; $("date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }); $("habits").innerHTML = user.habits.map((habit) => `<div class="habit ${habit.doneOn === today() ? "done" : ""}" data-id="${habit.id}"><span>${habit.icon}</span><span class="title">${habit.title}</span><small>${habit.doneOn ? "+10 EXP earned" : "+10 EXP"}</small><span class="check">✓</span></div>`).join(""); document.querySelectorAll(".habit").forEach((item) => { item.onclick = () => toggleHabit(item.dataset.id); }); }
 async function toggleHabit(habitId) { try { const wasDone = user.habits.find((habit) => habit.id === habitId).doneOn; const result = await api("/api/habits/toggle", { method: "POST", body: JSON.stringify({ habitId }) }); user = result.user; render(); if (!wasDone) toast(user.exp === 0 ? `LEVEL UP! You reached level ${user.level}!` : "+10 EXP · Quest complete! ✦"); } catch (error) { toast(error.message); } }
 function enterApp(account) { user = account; $("auth").classList.add("hidden"); $("dashboard").classList.remove("hidden"); render(); }
+function accentForeground(hex) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return "#ffffff";
+  const channels = [1, 3, 5].map((index) => parseInt(hex.slice(index, index + 2), 16) / 255);
+  const linear = channels.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  const luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  return luminance > 0.179 ? "#10151d" : "#ffffff";
+}
+function applyAccent(accent) {
+  const safeAccent = /^#[0-9a-f]{6}$/i.test(accent) ? accent : "#68a9ff";
+  document.documentElement.style.setProperty("--accent", safeAccent);
+  document.documentElement.style.setProperty("--accent-foreground", accentForeground(safeAccent));
+  return safeAccent;
+}
 function applyAppearance() {
   const theme = localStorage.getItem("habit-theme") || "graphite";
   const accent = localStorage.getItem("habit-accent") || "#68a9ff";
   document.documentElement.dataset.theme = ["graphite", "midnight", "light"].includes(theme) ? theme : "graphite";
-  document.documentElement.style.setProperty("--accent", /^#[0-9a-f]{6}$/i.test(accent) ? accent : "#68a9ff");
+  const safeAccent = applyAccent(accent);
   $("theme-select").value = document.documentElement.dataset.theme;
-  $("custom-accent").value = accent;
+  $("custom-accent").value = safeAccent;
   const preset = $("accent-select");
-  preset.value = [...preset.options].some((option) => option.value.toLowerCase() === accent.toLowerCase()) ? accent : "";
+  preset.value = [...preset.options].some((option) => option.value.toLowerCase() === safeAccent.toLowerCase()) ? safeAccent : "";
 }
 applyAppearance();
 $("theme-select").addEventListener("change", (event) => {
@@ -36,7 +49,7 @@ $("accent-select").addEventListener("change", (event) => {
 });
 $("custom-accent").addEventListener("input", (event) => {
   localStorage.setItem("habit-accent", event.target.value);
-  document.documentElement.style.setProperty("--accent", event.target.value);
+  applyAccent(event.target.value);
   $("accent-select").value = "";
 });
 document.querySelectorAll("nav button").forEach((button) => button.onclick = () => { document.querySelectorAll("nav button").forEach((item) => item.classList.remove("active")); button.classList.add("active"); mode = button.dataset.mode; $("signup-fields").classList.toggle("hidden", mode !== "signup"); $("auth-label").textContent = mode === "signup" ? "Create your account ↗" : "Enter the quest ↗"; });
