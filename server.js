@@ -15,7 +15,7 @@ const FIXED_HABITS = [
   { id: "water", title: "Hydration", icon: "💧" },
   { id: "shower", title: "Showering", icon: "🚿" },
 ];
-app.use(express.json());
+// Bound request parsing so oversized JSON cannot exhaust memory on the small self-hosted server.\napp.use(express.json({ limit: "16kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Every account-data endpoint requires a random, in-memory bearer session.
