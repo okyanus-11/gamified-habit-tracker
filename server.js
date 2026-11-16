@@ -57,6 +57,7 @@ function writeData(data) { const temp = `${DATA_FILE}.${process.pid}.${crypto.ra
 function today() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, "0"); const day = String(now.getDate()).padStart(2, "0"); return `${year}-${month}-${day}`; }
 function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) { return { salt, hash: crypto.scryptSync(password, salt, 64).toString("hex") }; }
 function safeUser(user) { const { passwordHash, passwordSalt, ...publicUser } = user; return publicUser; }
+function isValidBirthdate(value) { if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false; const [year, month, day] = value.split("-").map(Number); const birth = new Date(year, month - 1, day); return birth.getFullYear() === year && birth.getMonth() === month - 1 && birth.getDate() === day && birth <= new Date(); }
 function ageFrom(birthdate) { const birth = new Date(`${birthdate}T00:00:00`); if (Number.isNaN(birth.getTime())) return -1; const now = new Date(); let age = now.getFullYear() - birth.getFullYear(); const passed = now.getMonth() > birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() >= birth.getDate()); return passed ? age : age - 1; }
 app.post("/api/signup", (req, res) => {
   const { username, password, gender, birthdate } = req.body;
@@ -64,6 +65,7 @@ app.post("/api/signup", (req, res) => {
   if (!cleanUsername || cleanUsername.length > 32 || typeof password !== "string" || password.length < 6 || !gender || !birthdate) {
     return res.status(400).json({ error: "Enter a username (1–32 characters), password (at least 6 characters), gender and birthdate." });
   }
+  if (!isValidBirthdate(birthdate)) return res.status(400).json({ error: "Enter a valid birthdate that is not in the future." });
   if (ageFrom(birthdate) < 13) return res.status(400).json({ error: "You must be at least 13 years old to create an account." });
   const data = readData();
   if (data.users.some((user) => user.username.toLowerCase() === cleanUsername.toLowerCase())) {
@@ -128,6 +130,7 @@ app.post("/api/habits", (req, res) => {
   const data = readData();
   const user = data.users.find((item) => item.id === req.authenticatedUserId);
   if (!user) return res.status(404).json({ error: "User not found." });
+  if (user.habits.length >= 100) return res.status(409).json({ error: "You can keep up to 100 habits on one account." });
   user.habits.push({ id: crypto.randomUUID(), title: cleanTitle, icon: "⚡", doneOn: null });
   writeData(data);
   res.json({ user: safeUser(user) });
