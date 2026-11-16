@@ -12,8 +12,60 @@ async function api(url, options = {}) {
   return data;
 }
 function toast(message) { const item = $("toast"); item.textContent = message; item.classList.add("show"); setTimeout(() => item.classList.remove("show"), 2400); }
-function render() { const completed = user.habits.filter((habit) => habit.doneOn === today()).length; $("name").textContent = user.username; $("level").textContent = user.level; $("exp").textContent = user.exp; $("bar").style.setProperty("--value", `${user.exp}%`); $("count").textContent = `${completed} / ${user.habits.length} complete`; $("date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }); $("habits").innerHTML = user.habits.map((habit) => `<div class="habit ${habit.doneOn === today() ? "done" : ""}" data-id="${habit.id}"><span>${habit.icon}</span><span class="title">${habit.title}</span><small>${habit.doneOn ? "+10 EXP earned" : "+10 EXP"}</small><span class="check">✓</span></div>`).join(""); document.querySelectorAll(".habit").forEach((item) => { item.onclick = () => toggleHabit(item.dataset.id); }); }
-async function toggleHabit(habitId) { try { const wasDone = user.habits.find((habit) => habit.id === habitId).doneOn; const result = await api("/api/habits/toggle", { method: "POST", body: JSON.stringify({ habitId }) }); user = result.user; render(); if (!wasDone) toast(user.exp === 0 ? `LEVEL UP! You reached level ${user.level}!` : "+10 EXP · Quest complete! ✦"); } catch (error) { toast(error.message); } }
+function render() {
+  const completed = user.habits.filter((habit) => habit.doneOn === today()).length;
+  $("name").textContent = user.username;
+  $("level").textContent = user.level;
+  $("exp").textContent = user.exp;
+  $("bar").style.setProperty("--value", `${user.exp}%`);
+  $("count").textContent = `${completed} / ${user.habits.length} complete`;
+  $("date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+
+  // Build rows with text nodes: habit titles are user-controlled and must never
+  // be interpreted as HTML.
+  const list = $("habits");
+  const fragment = document.createDocumentFragment();
+  for (const habit of user.habits) {
+    const done = habit.doneOn === today();
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = `habit${done ? " done" : ""}`;
+    item.dataset.id = habit.id;
+    item.setAttribute("aria-pressed", String(done));
+
+    const icon = document.createElement("span");
+    icon.textContent = habit.icon || "⚡";
+    const title = document.createElement("span");
+    title.className = "title";
+    title.textContent = habit.title;
+    const reward = document.createElement("small");
+    reward.textContent = done ? "Completed · 10 EXP" : "+10 EXP";
+    const check = document.createElement("span");
+    check.className = "check";
+    check.setAttribute("aria-hidden", "true");
+    check.textContent = "✓";
+
+    item.append(icon, title, reward, check);
+    item.addEventListener("click", () => toggleHabit(habit.id));
+    fragment.append(item);
+  }
+  list.replaceChildren(fragment);
+}
+async function toggleHabit(habitId) {
+  try {
+    const previousLevel = user.level;
+    const result = await api("/api/habits/toggle", { method: "POST", body: JSON.stringify({ habitId }) });
+    user = result.user;
+    render();
+    if (result.gained > 0 && user.level > previousLevel) {
+      toast(`LEVEL UP! You reached level ${user.level}!`);
+    } else if (result.gained > 0) {
+      toast("+10 EXP · Quest complete! ✦");
+    } else {
+      toast("Completion undone · 10 EXP returned.");
+    }
+  } catch (error) { toast(error.message); }
+}
 function enterApp(account) { user = account; $("auth").classList.add("hidden"); $("dashboard").classList.remove("hidden"); render(); }
 function accentForeground(hex) {
   if (!/^#[0-9a-f]{6}$/i.test(hex)) return "#ffffff";
