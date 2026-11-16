@@ -70,7 +70,7 @@ test("account data requires an authenticated session bound to the account", asyn
   assert.equal(afterLogout.status, 401);
 });
 
-\ntest("oversized JSON requests are rejected before reaching API handlers", async () => {
+test("oversized JSON requests are rejected before reaching API handlers", async () => {
   const response = await fetch(`${baseUrl}/api/signup`, {
     method: "POST",
     headers: { "content-type": "application/json" },
