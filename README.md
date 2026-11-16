@@ -39,4 +39,4 @@ or use real credentials.
 
 ## Installation
 
-For prerequisites, environment setup, configuration, and run/build commands, see the [installation guide](INSTALLATION.md).
+Requires Node.js 18+ and npm. Clone the repository, run `npm install`, then `npm start` and open `http://localhost:3000`. The app creates a local `data.json` file on first launch; keep it private because it contains account data. See the [full installation guide](INSTALLATION.md) for development and optional Windows desktop-build commands.
