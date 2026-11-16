@@ -36,3 +36,7 @@ This is an educational, single-server demo. Sessions are held in memory and
 are invalidated when the server restarts. It does not provide HTTPS, durable
 session storage or production-grade rate limiting; do not expose it publicly
 or use real credentials.
+
+## Installation
+
+For prerequisites, environment setup, configuration, and run/build commands, see the [installation guide](INSTALLATION.md).
