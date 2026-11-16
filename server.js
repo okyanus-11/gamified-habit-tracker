@@ -34,8 +34,18 @@ app.use("/api", (req, res, next) => {
 });
 
 function createSession(userId) {
+  const now = Date.now();
+  for (const [token, session] of sessions) {
+    if (session.expiresAt <= now) sessions.delete(token);
+  }
+  // Bound memory use even if a local demo is left running for months.
+  while (sessions.size >= 5000) {
+    const oldest = sessions.keys().next().value;
+    if (!oldest) break;
+    sessions.delete(oldest);
+  }
   const token = crypto.randomBytes(32).toString("hex");
-  sessions.set(token, { userId, expiresAt: Date.now() + SESSION_TTL_MS });
+  sessions.set(token, { userId, expiresAt: now + SESSION_TTL_MS });
   return token;
 }
 function readData() { if (!fs.existsSync(DATA_FILE)) return { users: [] }; return JSON.parse(fs.readFileSync(DATA_FILE, "utf8")); }
