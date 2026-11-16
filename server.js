@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = process.env.HABIT_DATA_FILE || path.join(__dirname, "data.json");
 const sessions = new Map();
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const FIXED_HABITS = [
   { id: "workout", title: "Working Out", icon: "🏋️" },
   { id: "study", title: "School / Studying / Job", icon: "📚" },
@@ -22,15 +23,19 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", (req, res, next) => {
   if (req.path === "/signup" || req.path === "/login") return next();
   const match = /^Bearer ([a-f0-9]{64})$/.exec(req.get("authorization") || "");
-  const userId = match ? sessions.get(match[1]) : null;
-  if (!userId) return res.status(401).json({ error: "Please log in again." });
-  req.authenticatedUserId = userId;
+  const session = match ? sessions.get(match[1]) : null;
+  if (!session || session.expiresAt <= Date.now()) {
+    if (match) sessions.delete(match[1]);
+    return res.status(401).json({ error: "Please log in again." });
+  }
+  session.expiresAt = Date.now() + SESSION_TTL_MS;
+  req.authenticatedUserId = session.userId;
   next();
 });
 
 function createSession(userId) {
   const token = crypto.randomBytes(32).toString("hex");
-  sessions.set(token, userId);
+  sessions.set(token, { userId, expiresAt: Date.now() + SESSION_TTL_MS });
   return token;
 }
 function readData() { if (!fs.existsSync(DATA_FILE)) return { users: [] }; return JSON.parse(fs.readFileSync(DATA_FILE, "utf8")); }
