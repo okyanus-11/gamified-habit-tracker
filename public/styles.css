@@ -88,7 +88,7 @@ header { display: flex; justify-content: space-between; align-items: center; bor
 .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .section-title h3, aside h3 { font: 700 19px "Segoe UI", system-ui, sans-serif; }
 .section-title span { font-size: 11px; color: var(--success); }
-.habit { display: flex; align-items: center; gap: 13px; background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 16px; margin: 9px 0; cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
+.habit { width: 100%; text-align: left; font: inherit; color: inherit; display: flex; align-items: center; gap: 13px; background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 16px; margin: 9px 0; cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .15s ease; }
 .habit:hover { border-color: var(--accent); transform: translateY(-1px); }
 .habit.done { background: color-mix(in srgb, var(--success) 10%, var(--panel)); border-color: var(--success); }
 .habit .title { flex: 1; }
