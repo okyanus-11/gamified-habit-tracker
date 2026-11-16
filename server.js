@@ -37,6 +37,31 @@ app.post("/api/login", (req, res) => {
   if (user.lastReset !== today()) { user.habits.forEach((habit) => { habit.doneOn = null; }); user.lastReset = today(); writeData(data); }
   res.json({ user: safeUser(user) });
 });
-app.post("/api/habits/toggle", (req, res) => { const { userId, habitId } = req.body; const data = readData(); const user = data.users.find((item) => item.id === userId); if (!user) return res.status(404).json({ error: "User not found." }); if (user.lastReset !== today()) { user.habits.forEach((habit) => { habit.doneOn = null; }); user.lastReset = today(); } const habit = user.habits.find((item) => item.id === habitId); if (!habit) return res.status(404).json({ error: "Habit not found." }); if (!habit.doneOn) { habit.doneOn = today(); user.totalExp += 10; user.exp += 10; if (user.exp >= 100) { user.level += Math.floor(user.exp / 100); user.exp %= 100; } } writeData(data); res.json({ user: safeUser(user), gained: 10 }); });
+app.post("/api/habits/toggle", (req, res) => {
+  const { userId, habitId } = req.body;
+  const data = readData();
+  const user = data.users.find((item) => item.id === userId);
+  if (!user) return res.status(404).json({ error: "User not found." });
+
+  if (user.lastReset !== today()) {
+    user.habits.forEach((item) => { item.doneOn = null; });
+    user.lastReset = today();
+  }
+
+  const habit = user.habits.find((item) => item.id === habitId);
+  if (!habit) return res.status(404).json({ error: "Habit not found." });
+
+  // Make this a real toggle: completing earns 10 XP; undoing completion
+  // removes the same XP and recalculates the level/progress consistently.
+  const wasDone = habit.doneOn === today();
+  const delta = wasDone ? -10 : 10;
+  habit.doneOn = wasDone ? null : today();
+  user.totalExp = Math.max(0, (Number(user.totalExp) || 0) + delta);
+  user.level = Math.floor(user.totalExp / 100) + 1;
+  user.exp = user.totalExp % 100;
+
+  writeData(data);
+  res.json({ user: safeUser(user), gained: delta });
+});
 app.post("/api/habits", (req, res) => { const { userId, title } = req.body; const data = readData(); const user = data.users.find((item) => item.id === userId); if (!user || !title?.trim()) return res.status(400).json({ error: "A habit title is required." }); user.habits.push({ id: crypto.randomUUID(), title: title.trim(), icon: "⚡", doneOn: null }); writeData(data); res.json({ user: safeUser(user) }); });
 app.listen(PORT, () => console.log(`Habit Tracker running at http://localhost:${PORT}`));
