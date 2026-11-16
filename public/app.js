@@ -17,9 +17,9 @@ async function toggleHabit(habitId) { try { const wasDone = user.habits.find((ha
 function enterApp(account) { user = account; $("auth").classList.add("hidden"); $("dashboard").classList.remove("hidden"); render(); }
 function applyAppearance() {
   const theme = localStorage.getItem("habit-theme") || "graphite";
-  const accent = localStorage.getItem("habit-accent") || "#78aaff";
+  const accent = localStorage.getItem("habit-accent") || "#68a9ff";
   document.documentElement.dataset.theme = ["graphite", "midnight", "light"].includes(theme) ? theme : "graphite";
-  document.documentElement.style.setProperty("--accent", /^#[0-9a-f]{6}$/i.test(accent) ? accent : "#78aaff");
+  document.documentElement.style.setProperty("--accent", /^#[0-9a-f]{6}$/i.test(accent) ? accent : "#68a9ff");
   $("theme-select").value = document.documentElement.dataset.theme;
   $("custom-accent").value = accent;
   const preset = $("accent-select");
