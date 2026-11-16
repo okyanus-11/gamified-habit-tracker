@@ -5,7 +5,7 @@ a customizable modern interface.
 
 ## Features
 
-- Sign up with a username and password.
+- Sign up with a username, password, gender and birthdate (13+).
 - Fixed daily targets plus custom habits.
 - Earn 10 EXP per completed target; level up every 100 EXP.
 - Daily completion state resets when the date changes.
