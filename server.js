@@ -29,6 +29,9 @@ app.use("/api", (req, res, next) => {
     return res.status(401).json({ error: "Please log in again." });
   }
   session.expiresAt = Date.now() + SESSION_TTL_MS;
+  // Refresh insertion order so capacity eviction is least-recently-used.
+  sessions.delete(match[1]);
+  sessions.set(match[1], session);
   req.authenticatedUserId = session.userId;
   next();
 });
