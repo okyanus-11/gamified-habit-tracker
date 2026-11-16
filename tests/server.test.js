@@ -97,3 +97,19 @@ test("habit titles are rendered as text, never interpolated as HTML", () => {
   assert.match(frontend, /title\.textContent\s*=\s*habit\.title/);
   assert.doesNotMatch(frontend, /\.innerHTML\s*=/);
 });
+
+test("signup rejects malformed and future birthdates", async () => {
+  for (const birthdate of ["2020-02-31", "2999-01-01", "not-a-date"]) {
+    const response = await fetch(`${baseUrl}/api/signup`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        username: `invalid-${birthdate}`,
+        password: "test-password",
+        gender: "Prefer not to say",
+        birthdate,
+      }),
+    });
+    assert.equal(response.status, 400, `expected ${birthdate} to be rejected`);
+  }
+});
