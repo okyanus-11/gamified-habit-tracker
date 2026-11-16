@@ -58,7 +58,20 @@ test("account data requires an authenticated session bound to the account", asyn
   assert.equal(toggled.status, 200);
   const result = await toggled.json();
   assert.equal(result.user.id, created.user.id);
+  assert.equal(result.gained, 10);
+  assert.equal(result.user.totalExp, 10);
   assert.equal(result.user.habits.find((habit) => habit.id === "study").doneOn !== null, true);
+
+  const undone = await fetch(`${baseUrl}/api/habits/toggle`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ habitId: "study" }),
+  });
+  assert.equal(undone.status, 200);
+  const undoResult = await undone.json();
+  assert.equal(undoResult.gained, -10);
+  assert.equal(undoResult.user.totalExp, 0);
+  assert.equal(undoResult.user.level, 1);
 
   const loggedOut = await fetch(`${baseUrl}/api/logout`, { method: "POST", headers });
   assert.equal(loggedOut.status, 204);
@@ -77,4 +90,10 @@ test("oversized JSON requests are rejected before reaching API handlers", async 
     body: JSON.stringify({ username: "large", password: "test-password", gender: "unspecified", birthdate: "2000-01-01", extra: "x".repeat(20_000) }),
   });
   assert.equal(response.status, 413);
+});
+
+test("habit titles are rendered as text, never interpolated as HTML", () => {
+  const frontend = fs.readFileSync(path.join(__dirname, "../public/app.js"), "utf8");
+  assert.match(frontend, /title\.textContent\s*=\s*habit\.title/);
+  assert.doesNotMatch(frontend, /\.innerHTML\s*=/);
 });
