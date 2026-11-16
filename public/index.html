@@ -25,7 +25,31 @@
       </form>
     </section>
     <section id="dashboard" class="hidden">
-      <header><div class="brand">✦ HABIT QUEST</div><div><button id="leaderboard" class="link">◈ Global ranking</button><button id="logout" class="link">Log out</button></div></header>
+      <header>
+        <div class="brand">✦ HABIT QUEST</div>
+        <div class="header-actions">
+          <div class="appearance-controls" aria-label="Appearance settings">
+            <label class="muted" for="theme-select">Theme</label>
+            <select id="theme-select" aria-label="Choose theme">
+              <option value="graphite">Graphite</option>
+              <option value="midnight">Midnight</option>
+              <option value="light">Light</option>
+            </select>
+            <label class="muted" for="accent-select">Accent</label>
+            <select id="accent-select" aria-label="Choose accent">
+              <option value="#78aaff">Blue</option>
+              <option value="#a78bfa">Violet</option>
+              <option value="#45c6b0">Teal</option>
+              <option value="#35c98f">Emerald</option>
+              <option value="#f2b866">Amber</option>
+              <option value="#f18ca8">Rose</option>
+            </select>
+            <input id="custom-accent" class="accent-picker" type="color" value="#78aaff" aria-label="Custom accent colour" title="Custom accent colour">
+          </div>
+          <button id="leaderboard" class="link">◈ Global ranking</button>
+          <button id="logout" class="link">Log out</button>
+        </div>
+      </header>
       <div class="hero"><div><p class="eyebrow">DAILY QUEST · <span id="date"></span></p><h2>Welcome back, <em id="name"></em></h2><p class="muted">Small actions. Legendary results.</p></div><div class="level">LVL<strong id="level">1</strong></div></div>
       <div class="progress"><div><span>EXP PROGRESS</span><b><i id="exp">0</i> / 100</b></div><hr id="bar"></div>
       <div class="grid"><section><div class="section-title"><h3>Today's targets</h3><span id="count"></span></div><div id="habits"></div><form id="custom"><input id="custom-title" placeholder="Add a custom target..." required><button>＋</button></form></section><aside class="card"><h3>Global leaderboard</h3><p class="muted">Compete with every quester.</p><div id="mini"></div></aside></div>
